@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  php:
+    build: ./config/docker/php
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./config/docker/php/jit.ini:/usr/local/etc/php/conf.d/jit.ini
+      - ./config/docker/php/timezone.ini:/usr/local/etc/php/conf.d/timezone.ini
+  database:
+    image: mysql:8.0.31
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: tecrecovery-password
+      MYSQL_DATABASE: tecrecovery
+    volumes:
+      - tecrecovery_data:/var/lib/mysql
+    #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+      - ./config/docker/nginx/conf.d/:/etc/nginx/conf.d/
+
+volumes:
+  code:
+  tecrecovery_data:
